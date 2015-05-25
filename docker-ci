@@ -675,7 +675,6 @@ def updateScript():
 
 def getVersionsJson():
 	contents = readRemoteFile( DOCKER_CI_VERSIONS )
-	print contents
 	try:
 		return json.loads(contents);
 	except: 

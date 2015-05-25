@@ -1,6 +1,6 @@
 ## Be Consecutive
 
-Docker-ci runs your commands in sequence, It prints the commands it executes. Kill, remove, create volume, run and many other commands are available. They are simple, powerful and bring convinience to your build
+Docker-ci runs your commands in sequence, It prints what it executes. Kill, remove, create volume, run and many other commands are available. They are simple, powerful and bring convinience to your build
 
 ```python
 @cleanup
@@ -69,9 +69,9 @@ Be sure your container has launched. Special option "wait" will read container's
 ```
 
 
----
-There is so much more!
----
+
+## There is so much more!
+
 
 
 
