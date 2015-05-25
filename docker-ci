@@ -14,7 +14,7 @@ class Settings:
 
 
 DOCKER_CI_SOURCE = "https://raw.githubusercontent.com/docker-ci/docker-ci/master/docker-ci?d=%s" % random.random()
-DOCKER_CI_VERSIONS = "https://github.com/docker-ci/docker-ci/blob/master/versions.json?d=%s" % random.random()
+DOCKER_CI_VERSIONS = "https://raw.githubusercontent.com/docker-ci/docker-ci/master/versions.json?d=%s" % random.random()
 
 
 
@@ -675,9 +675,10 @@ def updateScript():
 
 def getVersionsJson():
 	contents = readRemoteFile( DOCKER_CI_VERSIONS )
+	print contents
 	try:
 		return json.loads(contents);
-	except:
+	except: 
 		printError("Some error in server's json file..")
 		fatal()
 
