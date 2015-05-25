@@ -7,7 +7,7 @@ folder.
 ## Script install
 
 ```bash
-$ wget -O - https://raw.githubusercontent.com/wiresjs/docker-ci/master/install.sh | bash
+$ wget -O - https://raw.githubusercontent.com/docker-ci/docker-ci/master/install.sh | bash
 ```
 
 Please, don't use sudo permissions. This script does not require any. 
@@ -17,7 +17,7 @@ Please, don't use sudo permissions. This script does not require any.
 If you are not able to install through this script, please do it manually 
 
 ```bash
-wget https://raw.githubusercontent.com/wiresjs/docker-ci/master/docker-ci
+wget https://raw.githubusercontent.com/docker-ci/docker-ci/master/docker-ci
 cp docker-ci /usr/local/bin
 ```
 
