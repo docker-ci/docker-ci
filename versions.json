@@ -1,13 +1,8 @@
 {
 	"versions": [{
-		"version": "0.8.11",
+		"version": "0.8.12",
 		"release-notes": [
-			"User settings for automatic update"
-		]
-	}, {
-		"version": "0.8.1",
-		"release-notes": [
-			"Initial version release"
+			"Docker-ci moved to a different repository"
 		]
 	}]
 }

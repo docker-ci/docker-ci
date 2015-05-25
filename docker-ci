@@ -13,8 +13,8 @@ class Settings:
 
 
 
-DOCKER_CI_SOURCE = "https://raw.githubusercontent.com/wiresjs/docker-ci/master/docker-ci?d=%s" % random.random()
-DOCKER_CI_VERSIONS = "https://raw.githubusercontent.com/wiresjs/docker-ci/master/versions.json?d=%s" % random.random()
+DOCKER_CI_SOURCE = "https://raw.githubusercontent.com/docker-ci/docker-ci/master/docker-ci?d=%s" % random.random()
+DOCKER_CI_VERSIONS = "https://github.com/docker-ci/docker-ci/blob/master/versions.json?d=%s" % random.random()
 
 
 
