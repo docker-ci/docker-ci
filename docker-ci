@@ -1,0 +1,757 @@
+#!/usr/bin/env python
+#
+import re, time, sys, platform, itertools,os.path, random, json, hashlib
+from subprocess import Popen, PIPE
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+class Settings:
+	verboseMode = True
+	@staticmethod
+	def setVerboseMode(verboseMode = False):
+		Settings.verboseMode = verboseMode;
+
+
+
+DOCKER_CI_SOURCE = "https://raw.githubusercontent.com/wiresjs/docker-ci/master/docker-ci?d=%s" % random.random()
+DOCKER_CI_VERSIONS = "https://raw.githubusercontent.com/wiresjs/docker-ci/master/versions.json?d=%s" % random.random()
+
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    RED = '\033[41m'
+    GRAY = '\033[37m'
+    BROWN = '\033[33m'
+    MAGENTA = '\033[45m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+def printNotification(message):
+	print "%s# %s%s" % ( bcolors.OKGREEN, message, bcolors.ENDC)
+
+def printCmd(message):
+	return printNotification(message)
+
+def printBash(message):
+	print "%s  %s%s" % ( bcolors.GRAY, message, bcolors.ENDC)
+
+def printImportant(message):
+	print "%s  %s%s" % ( bcolors.MAGENTA, message, bcolors.ENDC)
+
+
+def printInfo(message):
+	printBash(message)
+
+def printError(message):
+	print  "%s# %s%s" % ( bcolors.RED, message, bcolors.ENDC)
+
+
+def fatal(message = None):
+	if message:
+		sys.exit(message)
+	else:
+		sys.exit(1)
+
+class Arguments:
+	def __init__(self):
+		self.args = {}
+		latestValidKey = None
+		for arg in sys.argv:
+			data = None
+			if arg.startswith("--"):
+				data = arg[2:]
+			else:
+				if arg.startswith("-"):
+					data = arg[1:]
+			if data:
+				keys = data.split("=", 1)
+				if len(keys) == 2:
+					self.args[keys[0]] = keys[1]
+				else:
+					latestValidKey = keys[0]
+					self.args[keys[0]] = True
+			else: # Assume that's a value
+				if latestValidKey:
+					self.args[latestValidKey] = arg
+					latestValidKey = None	 	
+
+	def get(self, key):
+		if self.args.has_key(key):
+			return 	self.args[key]
+
+	def set(self, key, value):
+		self.args[key] = value
+
+	def getCommand(self):
+		if len(sys.argv) > 1:
+			return sys.argv[1]
+		
+scriptArgs = Arguments()
+
+
+# meta file that stores all needed information
+# like last time updated, user settings and so on
+class ScriptMeta:
+	def __init__(self):
+		self.data = {}
+		self.infoFile = os.path.join(os.path.expanduser('~'), '.docker-ci-meta')
+		if not os.path.isfile(self.infoFile):
+			## Writing just an empty json string
+			open(self.infoFile,'w').write("{}")
+		else:
+			contents = open(self.infoFile, 'r').read()
+			try:
+				self.data = json.loads(contents)
+			except Exception, e:
+				print e
+				printError("Failed to parse %s " % infoFile)
+
+	# Getting a key
+	def get(self, key):
+		if self.data.has_key(key):
+			return self.data[key]
+		return None
+
+	# Setting new key
+	def set(self, key, value):
+		self.data[key] = value
+
+	## Saving json
+	def save(self):
+		infoFile = open(self.infoFile,'w')
+		infoFile.write(json.dumps(self.data))
+		
+
+scriptMeta = ScriptMeta()
+
+# Helper class to execute commands
+class Bash:
+	def __init__(self, process):
+		self.args = [];
+		self.process = process;
+
+	def add(self, *args):
+		for a in args:
+			self.args.append(a)
+	
+	def call(self, printErrors = True, printOutput = True):
+		
+		if self.process:
+			self.args.insert(0, self.process);
+		
+		printBash(" ".join( self.args).strip()) 
+
+		proc = Popen(' '.join(self.args), shell=True, stdout=PIPE, stderr=PIPE)
+		output = []
+
+		while proc.poll() is None:
+			try:
+			    l = proc.stdout.readline() 
+			    output.append(l)
+			    if printOutput:
+			    	print "   %s" % l.strip()
+			except (KeyboardInterrupt, SystemExit):
+				printError("Interrupted")
+				return
+
+		err = []
+		newImage = None
+
+		# Collecting std err
+		for line in proc.stderr:
+			try:
+				errLine = line.strip()
+				if errLine.find("Downloaded newer image") > -1:
+					newImage = True
+				err.append( errLine )
+			except:
+				print "Encoding problem"
+
+		if newImage:
+			printNotification("Newer image was downloaded");
+			return err
+
+
+		if (len(err) > 0 or proc.returncode != 0) and not newImage:
+			if printErrors:
+				if len(err) > 0:
+
+					printError(' '.join(self.args))
+					fatal('\n'.join(err))
+				else:
+					errMsg = 'FAILED: Command returned code that differs from 0 (%s)' % proc.returncode 
+					printError(errMsg)
+					fatal('Exit')
+			else:
+				fatal('\n'.join(err))
+		return output
+
+def readRemoteFile(data):
+	try:
+		import urllib2
+		f = urllib2.urlopen(data)
+		s = f.read()
+		f.close()
+		return s
+	except:
+		return None
+
+def getRunningContainers():
+	ps = Bash("docker")
+	ps.add("ps","-a")
+	runningContainers = ps.call(printOutput = False)
+	containers = []
+	for container in runningContainers:
+		data = re.split("\s{2,}", container)
+		if len(data) > 5:
+			
+			info = {}
+			info['id'] = data[0]
+			info['image'] = data[1]
+			if len(data) == 8:
+				info['name'] = data[6]
+			else:
+				info['name'] = data[5]
+
+			containers.append(info)
+	return containers
+		 
+def containerIsRunning(name):
+	containers = getRunningContainers()
+	for container in containers:
+		if container["name"] == name:
+			return True
+
+	return False
+
+def getContainerByName(name):
+	containers = getRunningContainers()
+	for container in containers:
+		if container["name"].startswith(name):
+			return container
+
+	return None
+
+
+def launchContainer(name, 
+		mount = None, 
+		link = None,
+		ports = None,
+		daemon = None, 
+		image = None,
+		env = [],
+		volumesFrom = None,
+		command = None
+	):
+	
+	
+	bash = Bash( "docker" )
+	bash.add("run")
+	
+	if link != None:
+		for l in link:
+			bash.add('--link')
+			bash.add("%s:%s" % (l[0], l[1]) )
+	
+	if volumesFrom:
+		bash.add("--volumes-from")
+		bash.add(volumesFrom)
+
+	
+	bash.add("--name")
+	bash.add(name)
+
+	if mount != None:
+		for mnt in mount:
+			bash.add('-v')
+			bash.add("%s:%s" % (mnt[0], mnt[1]) )
+		
+
+	if ports != None:
+		for p in ports:
+			bash.add("-p")
+			bash.add("%s:%s" % (p[0], p[1]) )
+	
+	for envName, envValue in env.iteritems():
+		bash.add("--env");
+		bash.add("%s=%s" % (envName,envValue) );		
+
+	printOutput = True
+	if daemon != None and daemon == True:
+		printOutput = False
+		bash.add("-d")
+	if image != None:
+		bash.add(image);
+	else:
+		bash.add(name);
+
+	if command:
+		bash.add(command)
+	
+	bash.call(printOutput = printOutput)
+
+# Readying environ file
+# Using regeexp to extract key and value
+def readEnvFile(envFile):
+	if not os.path.isfile(envFile):
+		printError("Env File %s does not exist" % envFile)
+		fatal()
+	envs = {}
+
+	printNotification("Reading env file %s" % envFile)
+	with open(envFile, "r") as ins:
+	    for line in ins:
+	    	matchObj = re.match( r'([\S]+)\s*=\s*(.*)$', line, re.M|re.I)
+	    	if matchObj != None:
+	    		key = matchObj.group(1)
+	    		value = matchObj.group(2)
+	    		envs[key] = value;
+	    		printInfo("env: '%s' -> '%s'" % (key, value) )
+	return envs
+	    	
+
+def getArguments():
+	args = {}
+	for arg in sys.argv:
+		if arg[:2] == "--":
+			data = arg[2:]
+			keys = data.split("=")
+			if len(keys) == 2:
+				args[keys[0]] = keys[1]
+
+	return args	
+
+
+def readInstructions():
+
+
+	if not scriptArgs.get("dir"):
+		scriptArgs.set("dir", os.getcwd())
+
+	filename = "Docker.ci"
+	if not scriptArgs.get("file"):
+		scriptArgs.set("file", filename)
+
+	if not os.path.isfile(filename):
+		printError("File %s does not exist" % filename)
+		return fatal()
+
+	
+	commands = []
+
+	class Cmd:
+		def __init__(self, name, initial):
+			self.name = name
+			self.initial = initial
+			self.args = {}
+
+			if self.initial != None and self.initial != "":
+				self.initial = self.replacesVars(self.initial)
+
+		
+
+
+		# Replacing values defined in parameters
+		# Considering default values (that are provided by using pipe)
+		def replacesVars(self, line):
+			variables = re.finditer(r"\$\{([^\}]+)", line, re.I|re.M)
+			for m in variables:
+				v = m.group(1)
+				split = v.split("|")
+				variableName = split[0]
+				defaultValue = ""
+				if len(split) == 2:
+					defaultValue = split[1]
+				targetValue = scriptArgs.get(variableName) if scriptArgs.get(variableName) else defaultValue
+				line = line.replace("%s}" % m.group(0),targetValue )
+			return line;
+			
+			
+
+		def add(self,name, value):
+			self.args[name] = self.replacesVars(value);
+
+		def addToList(self,name, value1, value2):
+			if not self.args.has_key(name):
+				self.args[name] = [];
+
+			self.args[name].append([self.replacesVars(value1), self.replacesVars(value2)])
+
+		def isPresent(self,name):
+			return self.args.has_key(name) and self.args[name] != "";
+
+		def requires(self,arg):
+			if not self.isPresent(arg):
+				fatal("@%s requires %s" % (self.name, arg) );
+			return self.args[arg]
+
+		def get(self, name, default = None):
+			if self.args.has_key(name):
+				if self.args[name] != "":
+					return self.args[name]
+
+			return default
+
+	def executeIFCondition(conditionVariable):
+		if conditionVariable.startswith("!"):
+			conditionVariable = conditionVariable[1:]
+			if not scriptArgs.get(conditionVariable):
+				return True
+		if scriptArgs.get(conditionVariable):
+			return True
+		return False
+
+	with open(filename, "r") as ins:
+	    for line in ins:
+	    	matchObj = re.match( r'^@([^\s]+)\s+(.*)', line, re.M|re.I)
+	        if matchObj != None:
+	        	cmd = Cmd(matchObj.group(1), matchObj.group(2));
+	        	commands.append(cmd);
+	        else:
+	        	argsMatch = re.match( r'^\s*([^\s]+)\s*(\[if\s*([^\]]+)\])?\s*:\s*(.*)', line, re.M|re.I)
+	        	if argsMatch:
+	        		isValid = True
+	        		# Checking if statement
+	        		if argsMatch.group(3):
+	        			isValid = executeIFCondition(argsMatch.group(3))
+	        			printInfo(" Statement '%s' is %s" % (argsMatch.group(3), isValid))
+	        			
+	        		if len(commands) > 0 and isValid == True:
+	        			currentCmd = commands[len(commands)-1]
+	        			listCandidate = re.match(r'(\S+)\s*->\s*([\'"](.*)[\'"]$|(\S+))', argsMatch.group(4), re.M|re.I)
+	        			if listCandidate:
+	        				groups = listCandidate.groups();
+	        				value = groups[3]
+	        				if not value:
+	        					value = groups[2]
+	        				currentCmd.addToList(argsMatch.group(1), listCandidate.group(1), value)
+	        			else:
+	        				currentCmd.add(argsMatch.group(1), argsMatch.group(4))
+
+	
+	return  commands
+	        
+
+def pullContainerLogs(containerId):
+	logs = Bash("docker")
+	logs.add("logs", containerId)
+	return logs.call(printErrors = False, printOutput = False)
+
+
+class Execution:
+	def __init__(self):
+		self.containerIps = {}
+
+
+	def pullImage(self,cmd):
+
+		printNotification("Pulling %s" % cmd.initial)
+		if cmd.initial == None or cmd.initial == "":
+			fatal("pull: Image name should be defined")
+
+		bash = Bash("docker")
+		bash.add("pull")
+		bash.add(cmd.initial)
+		
+		try:
+			bash.call()
+		except:
+			pass
+
+
+	def build(self, cmd):
+		cmd.requires("tag");
+		cmd.requires("path");
+
+		tag = cmd.args['tag']
+		path = cmd.args['path']
+
+		cache = cmd.get("cache")
+		
+		if ( cache != None and cache == "false"):
+			cache = False
+		else:
+			cache = True
+
+		printCmd("Build image %s on path %s " % (tag, path));
+		bash = Bash("docker")
+		bash.add("build")
+		if not cache:
+			bash.add("--no-cache=true")
+		bash.add("-t", tag, path)
+		bash.call()
+		
+
+	def volume(self, cmd):
+		
+		if cmd.initial == "":
+			volumeName = cmd.requires("name");
+		else:
+			volumeName = cmd.initial;
+
+		printCmd("Creating volume container '%s'" % volumeName)
+		
+		mount  = cmd.get("mount");
+		vol = Bash("docker")
+		vol.add("run");
+		if mount != None:
+			for mnt in mount:
+				vol.add("-v")
+				vol.add("%s:%s" % (mnt[0], mnt[1]) )
+				printInfo("%s:%s" % (mnt[0], mnt[1]))
+		vol.add("--name", volumeName, "busybox", "true")
+		vol.call()
+
+
+	def _rm(self,cmd, force = False):
+		if cmd.initial == "":
+			containerName = cmd.requires("name");
+		else:
+			containerName = cmd.initial;
+		printCmd("Removing container with name '%s'"  % containerName);
+		existingContainer = getContainerByName(containerName)
+		if existingContainer:
+			printNotification("rm container with id %s"  % existingContainer['id']);
+			bash = Bash("docker")
+			bash.add("rm")
+			if force:
+				bash.add("-f")
+			bash.add( existingContainer['id'] )
+			bash.call(printOutput = False)
+			printInfo("Container '%s' was removed " % containerName)
+		else:
+			printInfo("'%s' is not running"  % containerName);
+
+	def rm(self, cmd):
+		self._rm(cmd, force = False)
+
+	def rm_force(self, cmd):
+		self._rm(cmd, force = True)
+
+	def kill(self, cmd):
+		
+		if cmd.initial == "":
+			containerName = cmd.requires("name");
+		else:
+			containerName = cmd.initial;
+		printCmd("Killing container with name '%s'"  % containerName);
+
+		existingContainer = getContainerByName(containerName)
+		if existingContainer:
+			printNotification("Kill container with id %s"  % existingContainer['id']);
+			bash = Bash("docker")
+			bash.add("kill", existingContainer['id'])
+			bash.call()
+			printInfo("Container '%s' was killed " % containerName)
+		else:
+			printInfo("'%s' is not running"  % containerName);
+
+
+
+	def run(self, cmd):
+		name = cmd.requires("name");
+		image = cmd.requires("image");
+		cache = cmd.get("cache")
+
+		# Reading special environment file if exists
+		envFile = cmd.get("env-file")
+		localEnvs = {}
+		if envFile:
+			localEnvs = readEnvFile(envFile)
+		
+		printCmd("Checking status of '%s' container " % name)
+		if ( cache != None and cache == "true"):
+			cache = True
+		else:
+			cache = False
+
+		alreadyRunning = containerIsRunning(name)
+		if alreadyRunning:
+			printInfo("Container %s is already running (%s)" % (name,  image))
+		else:
+			printInfo("Container %s is not running" % (name))
+			printCmd("Launching %s from %s " % (name, image))
+			launchCMD = launchContainer(name, 
+				link =  cmd.get("link"),
+				mount = cmd.get("mount"),
+				daemon = cmd.get("daemon", "true") == "true",
+				ports = cmd.get("ports"),
+				image = image,
+				env = localEnvs,
+				volumesFrom = cmd.get("volume"),
+				command = cmd.get("cmd")
+			)
+
+			# If we need to wait before proceeding
+			waiting = cmd.get("wait")
+			if waiting:
+				containerInfo = getContainerByName(name)
+				for waitSet in waiting:
+					waitKey, waitValue = waitSet
+					# Waiting for logs
+					if waitKey == 'logs_match':
+						matchFound = False
+						printInfo("Waiting for logs (%s) to match '%s'" % (name, waitValue))
+						waitPattern = re.compile(waitValue, re.M | re.I)
+						while not matchFound:
+							try :
+								logs = 	pullContainerLogs(containerInfo['id'])
+							except:
+								printError("Failed to obtain logs from %s. Died right away after the start?" % name)
+								fatal()
+							for entry in logs:
+								entry = entry.strip()
+								if waitPattern.match(entry):
+									
+									printInfo("Match found")
+									printInfo("   -> %s" % entry);
+									matchFound = True
+							if not matchFound:
+								printInfo("Match not found. Keep trying")
+								time.sleep(5)
+
+
+
+				
+		containerInfo = getContainerByName(name)
+
+	def cleanup(self, cmd):
+		printCmd("Cleaning up")
+		printNotification("Remove all stopped containers");
+		bash = Bash("docker")
+		bash.add("ps", "-a", "-q")
+		
+		stoppedContainers = bash.call(printErrors = False, printOutput = False)
+		if stoppedContainers:
+			for containerId in stoppedContainers:
+				try:
+					rm = Bash("docker")
+					rm.add("rm", containerId)
+					rm.call(printErrors = False, printOutput = False)
+				except:
+					pass
+	
+
+
+# Downloads script source from repository
+# Along with versions.json
+# Does not update the script if lock occured
+def updateScript():
+	currentVersions = scriptMeta.get("versions") 
+	serverVersions = getVersionsJson()
+	currentVersion = currentVersions["versions"][0]["version"]
+	serverVersion = serverVersions["versions"][0]["version"]
+	serverReleaseNotes = serverVersions["versions"][0]["release-notes"]
+	if currentVersion != serverVersion:
+		printImportant("Newer version %s is avialable!" % serverVersion);
+		for note in serverReleaseNotes:
+			printInfo(" * %s" % note )
+		printInfo("Dowloading version %s ..." % serverVersion);
+
+		lockFile =  os.path.join(sys.path[0],'.updatelock')
+
+		# Updating in case we don't have a lock file that prevents file to get updated
+		# This becomes handy when you are a developer
+		if not os.path.isfile(lockFile):
+			scriptContents = readRemoteFile(DOCKER_CI_SOURCE)
+			scriptPath = os.path.join(sys.path[0],'docker-ci')
+			current_file = open(scriptPath,'w')
+			current_file.write(scriptContents)
+			printInfo("Script is in sync with docker-ci master repository!");
+		else:
+			printInfo("Turns out you can't override the file due to .updatelock");
+		
+		scriptMeta.set("versions", serverVersions)
+		scriptMeta.save()
+	else:
+		printInfo("You have the latest version %s" % currentVersion)
+		
+
+def getVersionsJson():
+	contents = readRemoteFile( DOCKER_CI_VERSIONS )
+	try:
+		return json.loads(contents);
+	except:
+		printError("Some error in server's json file..")
+		fatal()
+
+# Script launch
+def prepareVersionControl():
+	homeDir = os.path.expanduser('~')
+
+	if scriptMeta.get("auto-update") == None:
+		scriptMeta.set("auto-update", True)
+		scriptMeta.save();
+
+	# If versions files does not exist - just download it
+	if not scriptMeta.get("versions"):
+		printInfo("Downloading versions.json")
+		scriptMeta.set("versions", getVersionsJson())
+		scriptMeta.set("checked_time", int(time.time()))
+		scriptMeta.save()
+
+	# Check updates
+	if scriptMeta.get("auto-update") == True:
+		checkedTime = scriptMeta.get("checked_time")
+		interval = 172800;
+		 
+
+		# Check each 2 days for an update
+		if int(time.time()) - checkedTime  > interval:
+			# Getting the latest version.json
+			printInfo("Checking newer versions ...")
+			updateScript()
+			scriptMeta.set("checked_time", int(time.time()))
+			scriptMeta.save()
+
+######## Start off ################
+prepareVersionControl()
+
+command = scriptArgs.getCommand()
+if command == None:
+	printNotification("No command defined")
+
+if command == "update":
+	updateScript()
+
+## User configuration is here
+if command == "config":
+	if scriptArgs.get("auto-update"):
+		if scriptArgs.get("auto-update") == 'false':
+			printInfo("Auto update is set to False")
+			scriptMeta.set("auto-update", False)
+		else:
+			printInfo("Auto update is set to True")
+			scriptMeta.set("auto-update", True)
+	scriptMeta.save()
+
+
+if command == "run":
+	commands = readInstructions()
+	execution =  Execution();
+	for cmd  in commands:
+		if cmd.name == "pull":
+			execution.pullImage(cmd)
+		if cmd.name == "ensure-running":
+			execution.ensureRunning(cmd)
+		if cmd.name == "build":
+			execution.build(cmd)
+		if cmd.name == "kill":
+			execution.kill(cmd)
+		if cmd.name == "rm-f":
+			execution.rm_force(cmd)
+		if cmd.name == "rm":
+			execution.rm(cmd)
+		if cmd.name == "volume":
+			execution.volume(cmd)
+		if cmd.name == "run":
+			execution.run(cmd)
+		if cmd.name == "cleanup":
+			execution.cleanup(cmd)
+

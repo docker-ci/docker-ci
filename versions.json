@@ -1,0 +1,13 @@
+{
+	"versions": [{
+		"version": "0.8.11",
+		"release-notes": [
+			"User settings for automatic update"
+		]
+	}, {
+		"version": "0.8.1",
+		"release-notes": [
+			"Initial version release"
+		]
+	}]
+}
