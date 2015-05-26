@@ -2,7 +2,7 @@
 if ! type "docker-ci" > /dev/null; then
  	echo "# Installing docker-ci"
 	echo "# Getting docker-ci script"
-	wget https://raw.githubusercontent.com/wiresjs/docker-ci/master/docker-ci
+	wget https://raw.githubusercontent.com/docker-ci/docker-ci/master/docker-ci
 	echo "# Moving to /usr/local/bin"
 	mv ./docker-ci /usr/local/bin
 	chmod +x /usr/local/bin/docker-ci
