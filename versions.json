@@ -1,8 +1,8 @@
 {
 	"versions": [{
-		"version": "0.8.12",
+		"version": "0.8.13",
 		"release-notes": [
-			"Docker-ci moved to a different repository"
+			"Fixed file reference"
 		]
 	}]
 }

@@ -79,7 +79,7 @@ class Arguments:
 			else: # Assume that's a value
 				if latestValidKey:
 					self.args[latestValidKey] = arg
-					latestValidKey = None	 	
+					latestValidKey = None
 
 	def get(self, key):
 		if self.args.has_key(key):
@@ -91,7 +91,7 @@ class Arguments:
 	def getCommand(self):
 		if len(sys.argv) > 1:
 			return sys.argv[1]
-		
+
 scriptArgs = Arguments()
 
 
@@ -126,7 +126,7 @@ class ScriptMeta:
 	def save(self):
 		infoFile = open(self.infoFile,'w')
 		infoFile.write(json.dumps(self.data))
-		
+
 
 scriptMeta = ScriptMeta()
 
@@ -139,20 +139,20 @@ class Bash:
 	def add(self, *args):
 		for a in args:
 			self.args.append(a)
-	
+
 	def call(self, printErrors = True, printOutput = True):
-		
+
 		if self.process:
 			self.args.insert(0, self.process);
-		
-		printBash(" ".join( self.args).strip()) 
+
+		printBash(" ".join( self.args).strip())
 
 		proc = Popen(' '.join(self.args), shell=True, stdout=PIPE, stderr=PIPE)
 		output = []
 
 		while proc.poll() is None:
 			try:
-			    l = proc.stdout.readline() 
+			    l = proc.stdout.readline()
 			    output.append(l)
 			    if printOutput:
 			    	print "   %s" % l.strip()
@@ -185,7 +185,7 @@ class Bash:
 					printError(' '.join(self.args))
 					fatal('\n'.join(err))
 				else:
-					errMsg = 'FAILED: Command returned code that differs from 0 (%s)' % proc.returncode 
+					errMsg = 'FAILED: Command returned code that differs from 0 (%s)' % proc.returncode
 					printError(errMsg)
 					fatal('Exit')
 			else:
@@ -210,7 +210,7 @@ def getRunningContainers():
 	for container in runningContainers:
 		data = re.split("\s{2,}", container)
 		if len(data) > 5:
-			
+
 			info = {}
 			info['id'] = data[0]
 			info['image'] = data[1]
@@ -221,7 +221,7 @@ def getRunningContainers():
 
 			containers.append(info)
 	return containers
-		 
+
 def containerIsRunning(name):
 	containers = getRunningContainers()
 	for container in containers:
@@ -239,31 +239,31 @@ def getContainerByName(name):
 	return None
 
 
-def launchContainer(name, 
-		mount = None, 
+def launchContainer(name,
+		mount = None,
 		link = None,
 		ports = None,
-		daemon = None, 
+		daemon = None,
 		image = None,
 		env = [],
 		volumesFrom = None,
 		command = None
 	):
-	
-	
+
+
 	bash = Bash( "docker" )
 	bash.add("run")
-	
+
 	if link != None:
 		for l in link:
 			bash.add('--link')
 			bash.add("%s:%s" % (l[0], l[1]) )
-	
+
 	if volumesFrom:
 		bash.add("--volumes-from")
 		bash.add(volumesFrom)
 
-	
+
 	bash.add("--name")
 	bash.add(name)
 
@@ -271,16 +271,16 @@ def launchContainer(name,
 		for mnt in mount:
 			bash.add('-v')
 			bash.add("%s:%s" % (mnt[0], mnt[1]) )
-		
+
 
 	if ports != None:
 		for p in ports:
 			bash.add("-p")
 			bash.add("%s:%s" % (p[0], p[1]) )
-	
+
 	for envName, envValue in env.iteritems():
 		bash.add("--env");
-		bash.add("%s=%s" % (envName,envValue) );		
+		bash.add("%s=%s" % (envName,envValue) );
 
 	printOutput = True
 	if daemon != None and daemon == True:
@@ -293,7 +293,7 @@ def launchContainer(name,
 
 	if command:
 		bash.add(command)
-	
+
 	bash.call(printOutput = printOutput)
 
 # Readying environ file
@@ -314,7 +314,7 @@ def readEnvFile(envFile):
 	    		envs[key] = value;
 	    		printInfo("env: '%s' -> '%s'" % (key, value) )
 	return envs
-	    	
+
 
 def getArguments():
 	args = {}
@@ -325,7 +325,7 @@ def getArguments():
 			if len(keys) == 2:
 				args[keys[0]] = keys[1]
 
-	return args	
+	return args
 
 
 def readInstructions():
@@ -333,16 +333,18 @@ def readInstructions():
 
 	if not scriptArgs.get("dir"):
 		scriptArgs.set("dir", os.getcwd())
+	
 
-	filename = "Docker.ci"
 	if not scriptArgs.get("file"):
 		scriptArgs.set("file", filename)
 
+	filename = scriptArgs.get("file");
+	print filename
 	if not os.path.isfile(filename):
 		printError("File %s does not exist" % filename)
 		return fatal()
 
-	
+
 	commands = []
 
 	class Cmd:
@@ -354,7 +356,7 @@ def readInstructions():
 			if self.initial != None and self.initial != "":
 				self.initial = self.replacesVars(self.initial)
 
-		
+
 
 
 		# Replacing values defined in parameters
@@ -371,8 +373,8 @@ def readInstructions():
 				targetValue = scriptArgs.get(variableName) if scriptArgs.get(variableName) else defaultValue
 				line = line.replace("%s}" % m.group(0),targetValue )
 			return line;
-			
-			
+
+
 
 		def add(self,name, value):
 			self.args[name] = self.replacesVars(value);
@@ -421,7 +423,7 @@ def readInstructions():
 	        		if argsMatch.group(3):
 	        			isValid = executeIFCondition(argsMatch.group(3))
 	        			printInfo(" Statement '%s' is %s" % (argsMatch.group(3), isValid))
-	        			
+
 	        		if len(commands) > 0 and isValid == True:
 	        			currentCmd = commands[len(commands)-1]
 	        			listCandidate = re.match(r'(\S+)\s*->\s*([\'"](.*)[\'"]$|(\S+))', argsMatch.group(4), re.M|re.I)
@@ -434,9 +436,9 @@ def readInstructions():
 	        			else:
 	        				currentCmd.add(argsMatch.group(1), argsMatch.group(4))
 
-	
+
 	return  commands
-	        
+
 
 def pullContainerLogs(containerId):
 	logs = Bash("docker")
@@ -458,7 +460,7 @@ class Execution:
 		bash = Bash("docker")
 		bash.add("pull")
 		bash.add(cmd.initial)
-		
+
 		try:
 			bash.call()
 		except:
@@ -473,7 +475,7 @@ class Execution:
 		path = cmd.args['path']
 
 		cache = cmd.get("cache")
-		
+
 		if ( cache != None and cache == "false"):
 			cache = False
 		else:
@@ -486,17 +488,17 @@ class Execution:
 			bash.add("--no-cache=true")
 		bash.add("-t", tag, path)
 		bash.call()
-		
+
 
 	def volume(self, cmd):
-		
+
 		if cmd.initial == "":
 			volumeName = cmd.requires("name");
 		else:
 			volumeName = cmd.initial;
 
 		printCmd("Creating volume container '%s'" % volumeName)
-		
+
 		mount  = cmd.get("mount");
 		vol = Bash("docker")
 		vol.add("run");
@@ -535,7 +537,7 @@ class Execution:
 		self._rm(cmd, force = True)
 
 	def kill(self, cmd):
-		
+
 		if cmd.initial == "":
 			containerName = cmd.requires("name");
 		else:
@@ -564,7 +566,7 @@ class Execution:
 		localEnvs = {}
 		if envFile:
 			localEnvs = readEnvFile(envFile)
-		
+
 		printCmd("Checking status of '%s' container " % name)
 		if ( cache != None and cache == "true"):
 			cache = True
@@ -577,7 +579,7 @@ class Execution:
 		else:
 			printInfo("Container %s is not running" % (name))
 			printCmd("Launching %s from %s " % (name, image))
-			launchCMD = launchContainer(name, 
+			launchCMD = launchContainer(name,
 				link =  cmd.get("link"),
 				mount = cmd.get("mount"),
 				daemon = cmd.get("daemon", "true") == "true",
@@ -608,7 +610,7 @@ class Execution:
 							for entry in logs:
 								entry = entry.strip()
 								if waitPattern.match(entry):
-									
+
 									printInfo("Match found")
 									printInfo("   -> %s" % entry);
 									matchFound = True
@@ -618,7 +620,7 @@ class Execution:
 
 
 
-				
+
 		containerInfo = getContainerByName(name)
 
 	def cleanup(self, cmd):
@@ -626,7 +628,7 @@ class Execution:
 		printNotification("Remove all stopped containers");
 		bash = Bash("docker")
 		bash.add("ps", "-a", "-q")
-		
+
 		stoppedContainers = bash.call(printErrors = False, printOutput = False)
 		if stoppedContainers:
 			for containerId in stoppedContainers:
@@ -636,14 +638,14 @@ class Execution:
 					rm.call(printErrors = False, printOutput = False)
 				except:
 					pass
-	
+
 
 
 # Downloads script source from repository
 # Along with versions.json
 # Does not update the script if lock occured
 def updateScript():
-	currentVersions = scriptMeta.get("versions") 
+	currentVersions = scriptMeta.get("versions")
 	serverVersions = getVersionsJson()
 	currentVersion = currentVersions["versions"][0]["version"]
 	serverVersion = serverVersions["versions"][0]["version"]
@@ -666,18 +668,18 @@ def updateScript():
 			printInfo("Script is in sync with docker-ci master repository!");
 		else:
 			printInfo("Turns out you can't override the file due to .updatelock");
-		
+
 		scriptMeta.set("versions", serverVersions)
 		scriptMeta.save()
 	else:
 		printInfo("You have the latest version %s" % currentVersion)
-		
+
 
 def getVersionsJson():
 	contents = readRemoteFile( DOCKER_CI_VERSIONS )
 	try:
 		return json.loads(contents);
-	except: 
+	except:
 		printError("Some error in server's json file..")
 		fatal()
 
@@ -700,7 +702,7 @@ def prepareVersionControl():
 	if scriptMeta.get("auto-update") == True:
 		checkedTime = scriptMeta.get("checked_time")
 		interval = 172800;
-		 
+
 
 		# Check each 2 days for an update
 		if int(time.time()) - checkedTime  > interval:
@@ -754,4 +756,3 @@ if command == "run":
 			execution.run(cmd)
 		if cmd.name == "cleanup":
 			execution.cleanup(cmd)
-
