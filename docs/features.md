@@ -1,5 +1,5 @@
 ### How to launch simple node application with mongodb using Docker-ci
-Probably the best way to get along with docker-ci is to try it right way. It's simple, easy. Check out (this)[/how-to-launch-node-application-with-mongodb-using-docker-ci]tutorial.
+Probably the best way to get along with docker-ci is to try it right way. It's simple and easy. Check out (this)[/how-to-launch-node-application-with-mongodb-using-docker-ci]tutorial.
 
 
 ## Be Consecutive
