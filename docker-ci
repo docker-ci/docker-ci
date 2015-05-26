@@ -333,8 +333,8 @@ def readInstructions():
 
 	if not scriptArgs.get("dir"):
 		scriptArgs.set("dir", os.getcwd())
-	
 
+	filename = 'Docker.ci'
 	if not scriptArgs.get("file"):
 		scriptArgs.set("file", filename)
 
