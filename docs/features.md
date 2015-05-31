@@ -69,6 +69,9 @@ Be sure your container has launched. Special option "wait" will read container's
 ```
 
 
+---
+
+## Examples
 
 #### [Launching node application with mongodb in 5 minutes](/how-to-launch-node-application-with-mongodb-using-docker-ci)
 Probably the best way to get along with docker-ci is to try it right way. It's simple and easy. 
