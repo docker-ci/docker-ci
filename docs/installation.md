@@ -37,4 +37,4 @@ However i would recommend leaving it like it is,  due to often script updates (T
 Docker ci is in beta testing now, with general availability slated for July 2015.
 Contribution is highly appericiated
 
-Check out [docs](http://docker-ci.org/docs)
+Check out [docs](http://docker-ci.org/documentation)
