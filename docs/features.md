@@ -1,3 +1,10 @@
+#### [Launching node application with mongodb in 5 minutes](/how-to-launch-node-application-with-mongodb-using-docker-ci)
+Probably the best way to get along with docker-ci is to try it right way. It's simple and easy. 
+
+#### [Nginx proxy - static + node app](/nginx-app-static-files-and-node-application)
+Launching nginx server that proxies static files from the public folder and proxies the rest to the node application.
+
+
 ## Be Consecutive
 
 Docker-ci runs your commands in sequence: kills, removes, creates volume, runs, builds - many other commands are available. They are simple, powerful and bring convinience to your build
@@ -69,15 +76,6 @@ Be sure your container has launched. Special option "wait" will read container's
 ```
 
 
----
-
-## Examples
-
-#### [Launching node application with mongodb in 5 minutes](/how-to-launch-node-application-with-mongodb-using-docker-ci)
-Probably the best way to get along with docker-ci is to try it right way. It's simple and easy. 
-
-#### [Nginx proxy - static + node app](/nginx-app-static-files-and-node-application)
-Launching nginx server that proxies static files from the public folder and proxies the rest to the node application.
 
 
 
