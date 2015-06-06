@@ -1,3 +1,5 @@
 # docker-ci
 
-moved to -> docker-ci.org (coming very soon)
+All info is here:
+
+http://docker-ci.org/
