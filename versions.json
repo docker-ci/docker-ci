@@ -1,8 +1,8 @@
 {
 	"versions": [{
-		"version": "0.8.14",
+		"version": "0.8.15",
 		"release-notes": [
-			"Fixed file reference, small bug"
+			"Exec function is added"
 		]
 	}]
 }

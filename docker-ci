@@ -11,12 +11,8 @@ class Settings:
 	def setVerboseMode(verboseMode = False):
 		Settings.verboseMode = verboseMode;
 
-
-
 DOCKER_CI_SOURCE = "https://raw.githubusercontent.com/docker-ci/docker-ci/master/docker-ci?d=%s" % random.random()
 DOCKER_CI_VERSIONS = "https://raw.githubusercontent.com/docker-ci/docker-ci/master/versions.json?d=%s" % random.random()
-
-
 
 class bcolors:
     HEADER = '\033[95m'
@@ -141,21 +137,19 @@ class Bash:
 			self.args.append(a)
 
 	def call(self, printErrors = True, printOutput = True):
-
 		if self.process:
 			self.args.insert(0, self.process);
-
 		printBash(" ".join( self.args).strip())
 
 		proc = Popen(' '.join(self.args), shell=True, stdout=PIPE, stderr=PIPE)
 		output = []
-
+		errlines = []
 		while proc.poll() is None:
 			try:
-			    l = proc.stdout.readline()
-			    output.append(l)
-			    if printOutput:
-			    	print "   %s" % l.strip()
+				l = proc.stdout.readline()
+				output.append(l)
+				if printOutput:
+					print "   %s" % l.strip()
 			except (KeyboardInterrupt, SystemExit):
 				printError("Interrupted")
 				return
@@ -202,15 +196,17 @@ def readRemoteFile(data):
 	except:
 		return None
 
+## Utility functions ****************
+## **********************************
 def getRunningContainers():
 	ps = Bash("docker")
 	ps.add("ps","-a")
 	runningContainers = ps.call(printOutput = False)
+
 	containers = []
 	for container in runningContainers:
 		data = re.split("\s{2,}", container)
 		if len(data) > 5:
-
 			info = {}
 			info['id'] = data[0]
 			info['image'] = data[1]
@@ -218,7 +214,6 @@ def getRunningContainers():
 				info['name'] = data[6]
 			else:
 				info['name'] = data[5]
-
 			containers.append(info)
 	return containers
 
@@ -227,15 +222,14 @@ def containerIsRunning(name):
 	for container in containers:
 		if container["name"] == name:
 			return True
-
 	return False
 
 def getContainerByName(name):
 	containers = getRunningContainers()
+
 	for container in containers:
 		if container["name"].startswith(name):
 			return container
-
 	return None
 
 
@@ -249,8 +243,6 @@ def launchContainer(name,
 		volumesFrom = None,
 		command = None
 	):
-
-
 	bash = Bash( "docker" )
 	bash.add("run")
 
@@ -271,7 +263,6 @@ def launchContainer(name,
 		for mnt in mount:
 			bash.add('-v')
 			bash.add("%s:%s" % (mnt[0], mnt[1]) )
-
 
 	if ports != None:
 		for p in ports:
@@ -555,6 +546,18 @@ class Execution:
 			printInfo("'%s' is not running"  % containerName);
 
 
+	# Executing the current process
+	def doexec(self, cmd):
+		name = cmd.requires("name");
+		cmd   = cmd.requires("cmd")
+		alreadyRunning = containerIsRunning(name)
+		if alreadyRunning:
+			bash = Bash("docker")
+			bash.add("exec -it", name, cmd)
+			bash.call()
+		else:
+			fatal("Can't execute %s in %s. Container is not running" % (cmd, name) )
+
 
 	def run(self, cmd):
 		name = cmd.requires("name");
@@ -750,6 +753,8 @@ if command == "run":
 			execution.rm_force(cmd)
 		if cmd.name == "rm":
 			execution.rm(cmd)
+		if cmd.name == "exec":
+			execution.doexec(cmd)
 		if cmd.name == "volume":
 			execution.volume(cmd)
 		if cmd.name == "run":
