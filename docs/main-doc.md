@@ -175,6 +175,14 @@ Mounts previously described volume
 volume 		: shared
 ```
 
+### Exec
+Runs a command on a running container.
+
+```python
+@exec
+	name   : mymongo
+	cmd    : mongorestore --drop -d mydb /current_dump
+```
 
 ### Mount
 
