@@ -6,6 +6,9 @@
    "directories": {
       "doc": "docs"
    },
+   "bin": {
+      "docker-ci": "./index.js"
+   },
    "scripts": {
       "test": "echo \"Error: no test specified\" && exit 1"
    },

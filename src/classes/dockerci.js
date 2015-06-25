@@ -13,38 +13,41 @@ domain.service("DockerCi", function($waterfall, $scope, $log, Parser) {
          var variables = {};
          _.each(argv, function(value, key) {
             if (key === "argv") {
-               command = value;
+               command = value[0];
             } else {
                $scope.setArg(key, value)
             }
          })
 
+         if (command === "run") {
+            var targetFile = $scope.getArg("file", "Docker.ci")
 
-         var targetFile = $scope.getArg("file", "Docker.ci")
+            // Setting it back in case of reusing
+            $scope.setArg("file", targetFile)
 
-         // Setting it back in case of reusing
-         $scope.setArg("file", targetFile)
+            //         $log.important("Parsing file '%s'", targetFile)
+            var parser = new Parser(targetFile);
 
-         //         $log.important("Parsing file '%s'", targetFile)
-         var parser = new Parser(targetFile);
-
-         // Parsing and launching the waterfall
-         parser.parse().then($waterfall).then(function() {
-            $log.important("Success in %s", countdown(startTime, null, countdown.SECONDS |
-                  countdown.MILLISECONDS)
-               .toString())
-         }).catch(function(msg) {
-            var message = msg;
-            if (msg) {
-               if (msg.message) {
-                  message = msg.message;
+            // Parsing and launching the waterfall
+            parser.parse().then($waterfall).then(function() {
+               $log.important("Success in %s", countdown(startTime, null, countdown.SECONDS |
+                     countdown.MILLISECONDS)
+                  .toString())
+            }).catch(function(msg) {
+               var message = msg;
+               if (msg) {
+                  if (msg.message) {
+                     message = msg.message;
+                  }
+                  if (msg.out) {
+                     message = msg.out
+                  }
                }
-               if (msg.out) {
-                  message = msg.out
-               }
-            }
-            $log.error("FAIL: %s", message);
-         })
+               $log.error("FAIL: %s", message);
+            })
+         } else {
+            $log.error("No command defined")
+         }
       }
    }
 })
