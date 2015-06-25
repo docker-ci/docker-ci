@@ -1,0 +1,26 @@
+@cleanup [if !pukka]
+
+@define
+	test : hello_${foo|kukka}
+
+@rm-f mymongo
+
+@run
+	name		: mymongo
+	image    : mongo:2.6.9
+	cmd      : mongod --smallfiles
+	wait     : logs_match -> '.*waiting for connections on port 27017.*'
+
+@build
+	tag   :  mongo_node_test
+	path  : ./../tutorials/mongo_node
+
+@rm-f mongo_node_test
+
+@run
+	image  	: mongo_node_test
+	name 		: mongo_node_test
+	cmd  		: node app.js
+	link   	: mymongo -> mongo
+	ports 	: 8080 -> 3000
+	daemon  	: false
