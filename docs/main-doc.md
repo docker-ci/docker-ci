@@ -52,6 +52,23 @@ The output should look something like this
   docker rm 3cc6289c8cd6
 ```
 
+## Define
+
+Define your dynamic variables for convinience naming
+
+```python
+@define
+   foo : ${name|test}_my_project
+```
+
+You can use them anywhere. Set a fallback value if you need one.
+
+```python
+@build
+   name : ${foo|my_name}
+```
+
+
 ## Building
 
 Probably the simpliest directive here
@@ -117,10 +134,16 @@ You may notice on slow machines - mongo container requires about a minute to get
 ```python
 wait  	: logs_match -> '.*waiting for connections on port 27017.*'
 ```
+### env
+
+YOu can set an environment variable right in place
+
+```python
+env  	: foo -> bar
+```
+
 
 ### env-file
-
-
 
 Loads enviroment string from a specific file.
 
