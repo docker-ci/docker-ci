@@ -209,7 +209,17 @@ Mounts previously described volume
 volume 		: shared
 ```
 
-### Exec
+### Mount
+
+Mounts a directory. 
+
+```python
+	mount   : ${dir}/shared/nginx/logs 				-> /var/log/nginx
+```
+Don't overuse it. The official docker documentation does not recommend spoiling your containers up with alien directories. Use @volume. Of course, no one is to blame here if you go this way
+
+
+## Exec
 Runs a command on a running container.
 
 ```python
@@ -218,14 +228,6 @@ Runs a command on a running container.
 	cmd    : mongorestore --drop -d mydb /current_dump
 ```
 
-### Mount
 
-
-Mounts a directory. Yes. 
-
-```python
-	mount   : ${dir}/shared/nginx/logs 				-> /var/log/nginx
-```
-Don't overuse it. The official docker documentation does not recommend spoiling your containers up with alien directories. Use @volume. Of course, no one is to blame here if you go this way
 
 
