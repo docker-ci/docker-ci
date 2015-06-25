@@ -1,5 +1,16 @@
 # Docker-ci documentation
 
+## Installation and requirements (NODEJS)
+
+You need to have the latest nodejs version installed.  
+
+```bash
+npm install -g docker-ci
+```
+
+Please, note, that the first version of docker-ci is written in python. Consider updating as soon as possible.
+Nodejs version is a stable and maintanable release. Contribution is greatly appreciated. 
+
 ## Arguments
 
 Let's say we are running a scipt.
