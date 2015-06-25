@@ -1,10 +1,9 @@
 # Docker-ci Installation
 
 
-This script is written in nodejs.
-folder.
+The script is written in nodejs.
 
-## Script install
+## Install
 
 ```bash
 npm install -g docker-ci
