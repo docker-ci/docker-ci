@@ -3,11 +3,11 @@
 var _ = require('lodash');
 var domain = require('wires-domain');
 var Promise = require('promise')
-
+var path = require("path");
 require('require-all')(__dirname + '/src');
 
 domain.require(function(DockerCi, Bash, $scope) {
-
-   $scope.setArg("dir", process.cwd())
+   var rootPath = path.join("/", process.cwd());
+   $scope.setArg("dir", rootPath)
    DockerCi.init();
 })

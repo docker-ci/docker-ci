@@ -44,6 +44,7 @@ domain.service("DockerCi", function($waterfall, $scope, $log, Parser) {
                   }
                }
                $log.error("FAIL: %s", message);
+               process.exit(1)
             })
          } else {
             $log.error("No command defined")
