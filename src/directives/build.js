@@ -13,7 +13,7 @@ domain.service("directive.build", function(Bash) {
       var buider = new Bash("docker");
       buider.add("build", "-t", tag, path)
       if (!cache) {
-         bash.add("--no-cache=true")
+         buider.add("--no-cache=true")
       }
 
       return buider.call({

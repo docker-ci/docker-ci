@@ -1,6 +1,6 @@
 {
    "name": "docker-ci",
-   "version": "2.0.2",
+   "version": "2.0.3",
    "description": "All info is here:",
    "main": "index.js",
    "directories": {
