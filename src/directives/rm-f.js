@@ -6,7 +6,7 @@ var Promise = require('promise')
 
 domain.service("$removeContainer", function($error, $log, Bash) {
    return function(dir, force) {
-      var name = dir.value;
+      var name = dir.getValue();
       if (!name) {
          return $error("Name is required (@rm%s mycontainername)", (force ? "-f" : ''))
       }

@@ -3,59 +3,6 @@ var domain = require('wires-domain');
 var Promise = require('promise')
 var fs = require("fs");
 
-/*
-
-def launchContainer(name,
-		mount = None,
-		link = None,
-		ports = None,
-		daemon = None,
-		image = None,
-		env = [],
-		volumesFrom = None,
-		command = None
-	):
-	bash = Bash( "docker" )
-	bash.add("run")
-
-	if link != None:
-		for l in link:
-			bash.add('--link')
-			bash.add("%s:%s" % (l[0], l[1]) )
-
-	if volumesFrom:
-		bash.add("--volumes-from")
-		bash.add(volumesFrom)
-
-
-	bash.add("--name")
-	bash.add(name)
-
-	if mount != None:
-		for mnt in mount:
-			bash.add('-v')
-			bash.add("%s:%s" % (mnt[0], mnt[1]) )
-
-	if ports != None:
-		for p in ports:
-			bash.add("-p")
-			bash.add("%s:%s" % (p[0], p[1]) )
-
-	for envName, envValue in env.iteritems():
-		bash.add("--env");
-		bash.add("%s=%s" % (envName,envValue) );
-	printOutput = True
-	if daemon != None and daemon == True:
-		printOutput = False
-		bash.add("-d")
-	if image != None:
-		bash.add(image);
-	else:
-		bash.add(name);
-
-	if command:
-		bash.add(command)
-*/
 
 var logsAwaiting = function(containerName, regexp) {
    return new Promise(function(resolve, reject) {

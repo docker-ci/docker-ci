@@ -15,6 +15,11 @@ domain.service("Directive", function(Statement, Property, $error, $scope) {
 
          this.properties = {};
       },
+      getValue: function() {
+         if (!this.value)
+            return;
+         return new Property("value", this.value).getValue();
+      },
       requireAll: function(property) {
          if (!this.properties[property]) {
             return $error("'%s' is required by @%s", property, this.name)
