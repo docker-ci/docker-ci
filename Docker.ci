@@ -13,7 +13,9 @@
 
 @build
 	tag   :  mongo_node_test
+
 	path  : ./../tutorials/mongo_node
+	cache : false
 
 @rm-f mongo_node_test
 

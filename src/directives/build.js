@@ -11,10 +11,12 @@ domain.service("directive.build", function(Bash) {
       var cache = dir.getFirst("cache", "true").getValue() === "true"
 
       var buider = new Bash("docker");
-      buider.add("build", "-t", tag, path)
+      buider.add("build")
       if (!cache) {
          buider.add("--no-cache=true")
       }
+
+      buider.add("-t", tag, path);
 
       return buider.call({
          printOutput: true
