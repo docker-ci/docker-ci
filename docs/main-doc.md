@@ -140,7 +140,7 @@ cmd	: mongod --smallfiles
 ### wait
 
 
-You may notice on slow machines - mongo container requires about a minute to get started. On a better machine you will probably get it right away. But just to be sure, docker-ci can read logs and match each line on container's start. It will wait the moment and procceed if found.
+You may notice on slow machines - mongo container requires about a minute to get started. On a better machine you will probably get it right away. But just to be sure, docker-ci can read logs and match each line on container's start. It will poll the logs and procceed when match is found.
 
 ```python
 wait  	: logs_match -> '.*waiting for connections on port 27017.*'
@@ -156,7 +156,7 @@ env  	: foo -> bar
 
 ### env-file
 
-Loads enviroment string from a specific file.
+Loads enviroments from a specific file.
 
 ```python
 env-file 	: ${dir}/env/${env|test}
