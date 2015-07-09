@@ -2,7 +2,9 @@
 
 ## Docker-ci - an ultimate solution to managing docker containers
 
-Make your development easier with docker-ci
+Say you want to launch multiple containers and link them together. Sounds easy, right? But what if you need to clean stopped containers? Ensure container is running? Kill or remove container and build another one? Validate container? Run tests? Use specific environment?
+
+This tool does it all.
 
 Docker-ci is an open source project, that brings transparency and consistency to your project
 
