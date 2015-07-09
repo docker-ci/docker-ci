@@ -1,7 +1,15 @@
 # docker-ci
 
-## Docker-ci: an open source solution for managing docker containers
+## Docker-ci - an ultimate solution to managing docker containers
 
-Docker-ci runs your commands in sequence: kill, remove, create volume, run, build. They are simple, powerful and bring convinience to your build
+Make your development easier with docker-ci
 
-[http://docker-ci.org/](Official web Site)
+Docker-ci is an open source project, that brings transparency and consistency to your project
+
+---
+
+It runs your commands in sequence: kill, remove, create volume, run, build. They are simple, powerful and bring convinience to your build
+
+[Official web Site](http://docker-ci.org/)
+
+http://docker-ci.org/
