@@ -3,7 +3,7 @@ var domain = require('wires-domain');
 var Promise = require('promise')
 var countdown = require("countdown");
 
-domain.service("DockerCi", function($waterfall, $scope, $log, Parser) {
+domain.service("DockerCi", function($waterfall, $recentLogs, $scope, $log, DockerLogServer,DockerLogClient, Parser) {
    return {
       init: function() {
          var startTime = new Date();
@@ -18,8 +18,19 @@ domain.service("DockerCi", function($waterfall, $scope, $log, Parser) {
                $scope.setArg(key, value)
             }
          })
+         if (command === "test") {
 
-         if (command === "run") {
+         }
+         else if (command === "log-server") {
+            DockerLogServer();
+         } else if (command === "logs") {
+            DockerLogClient().then(function(msg){
+               console.log(msg)
+               process.exit(0)
+            }).catch(function(e){
+               process.exit(1)
+            })
+         } else if (command === "run") {
             var targetFile = $scope.getArg("file", "Docker.ci")
 
             // Setting it back in case of reusing

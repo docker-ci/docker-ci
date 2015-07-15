@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var domain = require('wires-domain');
+var server = require('wires-client')
 var Promise = require('promise')
 var path = require("path");
 require('require-all')(__dirname + '/src');

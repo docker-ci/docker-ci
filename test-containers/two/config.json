@@ -1,0 +1,85 @@
+{
+   "State": {
+      "Running": true,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 12970,
+      "ExitCode": 0,
+      "Error": "",
+      "StartedAt": "2015-06-16T07:28:18.786970618Z",
+      "FinishedAt": "0001-01-01T00:00:00Z"
+   },
+   "ID": "2a08a3cb632a96d8e7cd4639e161efaec194811c743f08e69dbcddaf07e51cf6",
+   "Created": "2015-06-16T07:28:14.930668749Z",
+   "Path": "/entrypoint.sh",
+   "Args": ["mongod"],
+   "Config": {
+      "Hostname": "2a08a3cb632a",
+      "Domainname": "",
+      "User": "",
+      "Memory": 0,
+      "MemorySwap": 0,
+      "CpuShares": 0,
+      "Cpuset": "",
+      "AttachStdin": false,
+      "AttachStdout": false,
+      "AttachStderr": false,
+      "PortSpecs": null,
+      "ExposedPorts": {
+         "27017/tcp": {}
+      },
+      "Tty": false,
+      "OpenStdin": false,
+      "StdinOnce": false,
+      "Env": ["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", "MONGO_VERSION=2.6.9"],
+      "Cmd": ["mongod"],
+      "Image": "mongo:2.6.9",
+      "Volumes": {
+         "/data/db": {}
+      },
+      "WorkingDir": "",
+      "Entrypoint": ["/entrypoint.sh"],
+      "NetworkDisabled": false,
+      "MacAddress": "",
+      "OnBuild": null,
+      "Labels": {}
+   },
+   "Image": "b4fa7b9347198d7316d15d9739f0621aae08f55c90576a225de9318e80588879",
+   "NetworkSettings": {
+      "IPAddress": "172.17.0.61",
+      "IPPrefixLen": 16,
+      "MacAddress": "02:42:ac:11:00:3d",
+      "LinkLocalIPv6Address": "fe80::42:acff:fe11:3d",
+      "LinkLocalIPv6PrefixLen": 64,
+      "GlobalIPv6Address": "",
+      "GlobalIPv6PrefixLen": 0,
+      "Gateway": "172.17.42.1",
+      "IPv6Gateway": "",
+      "Bridge": "docker0",
+      "PortMapping": null,
+      "Ports": {
+         "27017/tcp": null
+      }
+   },
+   "ResolvConfPath": "/var/lib/docker/containers/2a08a3cb632a96d8e7cd4639e161efaec194811c743f08e69dbcddaf07e51cf6/resolv.conf",
+   "HostnamePath": "/var/lib/docker/containers/2a08a3cb632a96d8e7cd4639e161efaec194811c743f08e69dbcddaf07e51cf6/hostname",
+   "HostsPath": "/var/lib/docker/containers/2a08a3cb632a96d8e7cd4639e161efaec194811c743f08e69dbcddaf07e51cf6/hosts",
+   "LogPath": "log.json",
+   "Name": "/my_app2",
+   "Driver": "aufs",
+   "ExecDriver": "native-0.2",
+   "MountLabel": "",
+   "ProcessLabel": "",
+   "AppArmorProfile": "",
+   "RestartCount": 0,
+   "UpdateDns": false,
+   "Volumes": {
+      "/data/db": "/var/lib/docker/vfs/dir/b4cdcb8580a3c88e4132c8c4c910c6bcb1375141475e4f3525039b3dfe69fa65"
+   },
+   "VolumesRW": {
+      "/data/db": true
+   },
+   "AppliedVolumesFrom": null
+}
