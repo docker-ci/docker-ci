@@ -22,7 +22,7 @@ domain.service("DockerLogServer", function($scope) {
       logger.info("-----------------")
 
 
-      server(3335, "1234", "logserver");
+      server(3335, token, "logserver");
    }
 })
 domain.service("$jsonifyInput", function() {
