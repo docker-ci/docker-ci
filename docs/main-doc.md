@@ -256,7 +256,6 @@ Gives a list of available containers
 docker-ci logs
 [2015-07-16 10:25:10.209] [INFO] WiresClient - Creating a connection to localhost:3335
 [2015-07-16 10:25:10.441] [INFO] WiresClient - Connected localhost.com:3335
-[2015-07-16 10:25:10.660] [INFO] WiresClient - Job finished for  NkPujHxK @localhost:3335 -> "Available Containers:\n  morrr_pushd\n  blog_engine\n  morrr_app_app4\n  mongo_blogs\n  morrr_app_app1\n  pushd_redis\n  mongo_board\n  mongo_app1\n  mongo_app2\n  morrr_app_app2\n  morrr_app_migration_app3\n  shared_app3\n  morrr_app_app3\n  mongo_app3\n  mongo_test_app2\n  mongo_test_app3\n  board"
 [2015-07-16 10:25:10.661] [INFO] WiresClient - Disconnected from  localhost:3335
 Available Containers:
   app_nginx
