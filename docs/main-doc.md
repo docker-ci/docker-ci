@@ -283,4 +283,9 @@ Store this information for your own convinience.
 ```
 Each time you run "docker-ci logs" it will try read configuration from the current folder.
 
+### Features to come
+
+* daemon mode (collecting all logs in the background)
+* Log rotating
+
 
