@@ -15,3 +15,8 @@ It runs your commands in sequence: kill, remove, create volume, run, build. They
 [Official web Site](http://docker-ci.org/)
 
 http://docker-ci.org/
+
+## Changelog
+
+* 2.0.61
+  * Docker remote loggin support
