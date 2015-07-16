@@ -229,7 +229,7 @@ Runs a command on a running container.
 ```
 
 
-## Remote Logging (new feature)
+## Remote Logging
 Docker-ci offerts a great solution to container logging. Start a server and connect from anywhere to see live logs
 
 ### Starting a server
