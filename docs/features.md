@@ -62,6 +62,28 @@ Your environmental variables are stored in files. Create some - dev, staging, pr
 
 And you certainly want to have a fallback environment, if nothing is passed
 
+## Be Transparent
+Docker-ci offerts a great solution to container logging. Start a server and connect from anywhere to see live logs
+
+```bash
+docker-ci log-server --token 123
+[2015-07-16 09:23:42.701] [INFO] logserver - Initiating log server
+[2015-07-16 09:23:42.702] [INFO] logserver - port: 3335
+[2015-07-16 09:23:42.702] [INFO] logserver - token: 123
+[2015-07-16 09:23:42.703] [INFO] logserver - containers folder: /var/lib/docker/containers
+[2015-07-16 09:23:42.704] [INFO] server - Wires server is ready on port:3335
+```
+
+Do it from you local computer!
+
+```bash
+docker-ci logs --host localhost:3335 --token 123
+Available Containers:
+  app_nginx
+  app_node
+  app_redis
+```
+
 
 ## Be Sure
 
