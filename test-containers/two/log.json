@@ -1,8 +1,3 @@
 {"log":"1","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"2","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"3","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"4","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"5","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"6","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"7","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
-{"log":"20","stream":"stdout","time":"2015-07-15T07:16:00.61634752Z"}
+{"log":"\u001b[32m[2015-07-22 12:37:43.453] [INFO] app - \u001b[39mGET: /api/calendar/bookings/user/554c79267a92d90300a4b3e9\n","stream":"stdout","time":"2015-07-22T12:37:43.453825248Z"}
+{"log":"\u001b[32m[2015-07-22 12:37:43.453] [INFO] app - \u001b[39mGET: /api/calendar/bookings/user/554c79267a92d90300a4b3e9\n","stream":"stdout","time":"2015-07-22T12:37:43.453825248Z"}

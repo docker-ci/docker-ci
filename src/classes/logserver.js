@@ -69,7 +69,6 @@ domain.service("$recentLogs", function($jsonifyInput) {
    }
 })
 
-//docker-ci log-server --folder '/Users/nc/work/docker-ci/docker-ci/test-containers'
 domain.service("logserver.watch", function($recentLogs,$jsonifyInput, $tail) {
    return function(message, api) {
       var watcher;

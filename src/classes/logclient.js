@@ -34,7 +34,7 @@ domain.service("DockerLogClient", function($scope, WiresClient) {
             if (data.status) {
                logger.info("Server says: " + data.status)
             } else {
-               console.log(data.log)
+               console.log(data.log.trim())
             }
          }
       })
