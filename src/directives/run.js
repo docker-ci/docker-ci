@@ -23,7 +23,9 @@ var logsAwaiting = function(containerName, regexp) {
                   $log.detail("Got it %s", found.trim())
                   return resolve();
                } else {
-                  poll();
+                  setTimeout(function(){
+                     poll();
+                  },1000)
                }
             }).catch(function(msg) {
                return reject(msg)
