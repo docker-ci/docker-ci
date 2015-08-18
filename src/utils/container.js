@@ -1,7 +1,6 @@
 var _ = require('lodash');
 var domain = require('wires-domain');
-var Promise = require('promise')
-
+var Promise = require('promise');
 
 domain.service("$container", function(Bash) {
    return {
@@ -12,20 +11,19 @@ domain.service("$container", function(Bash) {
             var bash = new Bash("docker");
             bash.add("ps");
             bash.call().then(function(lines) {
+
                var containerFound = false;
                _.each(lines, function(line) {
-
-                  var expr = new RegExp("\\s" + name + "\\s", "im")
+                  var expr = new RegExp("\\s" + name + "(\\s|$)", "img");
                   if (expr.exec(line)) {
                      return containerFound = true;
                   }
-               })
-               return resolve(containerFound)
+               });
+               return resolve(containerFound);
             }).catch(function(e) {
                return reject(false);
             });
-
          });
       }
-   }
-})
+   };
+});
