@@ -8,7 +8,7 @@ domain.service("directive.build", function(Bash) {
       var path = dir.getFirst("path", ".").getValue();
       var cache = dir.getFirst("cache", "true").getValue() === "true";
 
-      var dockerFile = dir.getFirst("file").getValue();
+      var dockerFile = dir.getFirst("file") ? dir.getFirst("file").getValue() : undefined;
       var buider = new Bash("docker");
 
       buider.add("build");

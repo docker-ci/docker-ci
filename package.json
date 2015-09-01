@@ -1,6 +1,6 @@
 {
    "name": "docker-ci",
-   "version": "2.0.65",
+   "version": "2.0.66",
    "description": "Docker-ci - an ultimate solution to managing docker containers.\nSay you want to launch multiple containers and link them together. Sounds easy, right? But what if you need to clean stopped containers? Ensure container is running? Kill or remove container and build another one? Validate container? Run tests? Use specific environment?\n This Tool does it all",
    "main": "index.js",
    "directories": {
