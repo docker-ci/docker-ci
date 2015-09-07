@@ -1,0 +1,17 @@
+# mongorestore --drop -d <database-name> <directory-of-dumped-backup>
+
+@tar
+   folder : ${dir}/dumps/petvetbook
+   target : ${dir}/dumps/archive.tar.gz
+
+@upload
+   target   : ${dir}/dumps/archive.tar.gz
+   to     : nc@130.211.95.245 -> /home/nc
+
+@download
+   from  : nc@130.211.95.245 -> /home/nc/archive.tar.gz
+   to    : ${dir}/dumps/pukka/
+
+@untar
+   target : ${dir}/dumps/archive.tar.gz
+   folder : ${dir}/dumps/dresult
