@@ -5,7 +5,7 @@ var domain = require('wires-domain');
 var server = require('wires-client');
 var Promise = require('promise');
 var path = require("path");
-var momemnt = require("moment");
+var moment = require("moment");
 require('require-all')(__dirname + '/src');
 
 domain.require(function(DockerCi, Bash, $scope) {
